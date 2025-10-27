@@ -1,16 +1,21 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QSizePolicy, QMessageBox
+    QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QSizePolicy, QMessageBox
 )
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QFont, QIcon, QPalette, QColor
+from PyQt5.QtGui import QFont, QPalette, QColor
+
+# Импорт функций из SRC
+from src import file_searcher
+from src import signature_checker
+from src import registry_parser
+from src import recycle_bin_analyzer
 
 class SpaceScanner(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("SPACE-SCANNER")
         self.setFixedSize(800, 600)
-
         self.init_ui()
 
     def init_ui(self):
@@ -19,11 +24,11 @@ class SpaceScanner(QWidget):
         palette.setColor(QPalette.WindowText, Qt.white)
         palette.setColor(QPalette.Button, QColor(40, 40, 40))
         palette.setColor(QPalette.ButtonText, Qt.white)
-
         self.setPalette(palette)
 
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
+
         self.logo_label = QLabel("🚀 SPACE‑SCANNER 🚀", self)
         self.logo_label.setAlignment(Qt.AlignCenter)
         self.logo_label.setFont(QFont("Arial", 36, QFont.Bold))
@@ -41,7 +46,6 @@ class SpaceScanner(QWidget):
         header.setStyleSheet("color: lightgreen; margin-bottom: 20px;")
         self.main_layout.addWidget(header)
 
-    
         button_style = """
             QPushButton {
                 background-color: #1E90FF;
@@ -66,10 +70,10 @@ class SpaceScanner(QWidget):
         ]
 
         commands = [
-            self.func_search_files,
-            self.func_check_unsigned,
-            self.func_export_csv,
-            self.func_check_recycle_bin
+            self.func_file_searcher,
+            self.func_signature_checker,
+            self.func_registry_parser,
+            self.func_recycle_bin_analyzer
         ]
 
         for text, cmd in zip(btn_texts, commands):
@@ -80,24 +84,35 @@ class SpaceScanner(QWidget):
             btn.clicked.connect(cmd)
             self.main_layout.addWidget(btn)
 
-
         self.main_layout.addStretch()
 
-    def func_search_files(self):
-        QMessageBox.information(self, "Функция", "Запущен поиск файлов по ключевым словам")
+    # Методы, вызывающие внешние функции
+    def func_file_searcher(self):
+        try:
+            file_searcher.search_files()
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", str(e))
 
-    def func_check_unsigned(self):
-        QMessageBox.information(self, "Функция", "Проверка неподписанных файлов")
+    def func_signature_checker(self):
+        try:
+            signature_checker()
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", str(e))
 
-    def func_export_csv(self):
-        QMessageBox.information(self, "Функция", "Экспорт данных в CSV")
+    def func_registry_parser(self):
+        try:
+            registry_parser()
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", str(e))
 
-    def func_check_recycle_bin(self):
-        QMessageBox.information(self, "Функция", "Проверка корзины")
-
+    def func_recycle_bin_analyzer(self):
+        try:
+           recycle_bin_analyzer()
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", str(e))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = SpaceScanner()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec_()) 
