@@ -1,118 +1,61 @@
-import sys
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QSizePolicy, QMessageBox
-)
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QFont, QPalette, QColor
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+from rich.prompt import Prompt
+from rich.table import Table
 
-# Импорт функций из SRC
-from src import file_searcher
-from src import signature_checker
-from src import registry_parser
-from src import recycle_bin_analyzer
+console = Console()
 
-class SpaceScanner(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("SPACE-SCANNER")
-        self.setFixedSize(800, 600)
-        self.init_ui()
+def show_title():
+    ascii_art_scanner = """
+  ░██████                                               ░██████████░██                                      
+ ░██   ░██                                                  ░██                                             
+░██         ░████████   ░██████    ░███████   ░███████      ░██    ░██░█████████████   ░███████   ░███████  
+ ░████████  ░██    ░██       ░██  ░██    ░██ ░██    ░██     ░██    ░██░██   ░██   ░██ ░██    ░██ ░██        
+        ░██ ░██    ░██  ░███████  ░██        ░█████████     ░██    ░██░██   ░██   ░██ ░█████████  ░███████  
+ ░██   ░██  ░███   ░██ ░██   ░██  ░██    ░██ ░██            ░██    ░██░██   ░██   ░██ ░██               ░██ 
+  ░██████   ░██░█████   ░█████░██  ░███████   ░███████      ░██    ░██░██   ░██   ░██  ░███████   ░███████  
+            ░██                                                                                             
+            ░██
+"""
+    panel_style = "bold red"
+    console.print(Panel(Text(ascii_art_scanner, style=panel_style), border_style=panel_style))
+    signature = Text("dev: avarice.dll // m3tad0n.", style="italic cyan")
+    console.print(signature, justify="center")
 
-    def init_ui(self):
-        palette = QPalette()
-        palette.setColor(QPalette.Window, QColor(20, 20, 20))
-        palette.setColor(QPalette.WindowText, Qt.white)
-        palette.setColor(QPalette.Button, QColor(40, 40, 40))
-        palette.setColor(QPalette.ButtonText, Qt.white)
-        self.setPalette(palette)
+def show_menu():
+    table = Table(title="Выберите сканирование", style="red")
+    table.add_column("Номер", justify="center", style="bold red")
+    table.add_column("Описание", style="white")
+    table.add_row("1", "EverythingReplace")
+    table.add_row("2", "RecycleBinAnalyzer")
+    table.add_row("3", "Registry Parser")
+    table.add_row("4", "Signature Checker (.exe)")
+    table.add_row("5", "Signature Checker (.dll)")
+    table.add_row("0", "Выход из программы")
+    console.print(table)
 
-        self.main_layout = QVBoxLayout()
-        self.setLayout(self.main_layout)
-
-        self.logo_label = QLabel("🚀 SPACE‑SCANNER 🚀", self)
-        self.logo_label.setAlignment(Qt.AlignCenter)
-        self.logo_label.setFont(QFont("Arial", 36, QFont.Bold))
-        self.logo_label.setStyleSheet("color: cyan;")
-        self.main_layout.addWidget(self.logo_label)
-
-        QTimer.singleShot(2000, self.show_menu)
-
-    def show_menu(self):
-        self.logo_label.deleteLater()
-
-        header = QLabel("Выберите функцию:", self)
-        header.setAlignment(Qt.AlignCenter)
-        header.setFont(QFont("Arial", 20))
-        header.setStyleSheet("color: lightgreen; margin-bottom: 20px;")
-        self.main_layout.addWidget(header)
-
-        button_style = """
-            QPushButton {
-                background-color: #1E90FF;
-                color: white;
-                border-radius: 10px;
-                padding: 15px;
-                font-size: 16px;
-            }
-            QPushButton:hover {
-                background-color: #63b3ed;
-            }
-            QPushButton:pressed {
-                background-color: #1570a5;
-            }
-        """
-
-        btn_texts = [
-            "🔍 Поиск файлов по ключевым словам",
-            "🛡️ Проверка неподписанных файлов",
-            "💾 Выгрузка данных в CSV",
-            "🗑️ Проверка удаления корзины"
-        ]
-
-        commands = [
-            self.func_file_searcher,
-            self.func_signature_checker,
-            self.func_registry_parser,
-            self.func_recycle_bin_analyzer
-        ]
-
-        for text, cmd in zip(btn_texts, commands):
-            btn = QPushButton(text)
-            btn.setStyleSheet(button_style)
-            btn.setFixedHeight(50)
-            btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            btn.clicked.connect(cmd)
-            self.main_layout.addWidget(btn)
-
-        self.main_layout.addStretch()
-
-    # Методы, вызывающие внешние функции
-    def func_file_searcher(self):
-        try:
-            file_searcher.search_files()
-        except Exception as e:
-            QMessageBox.critical(self, "Ошибка", str(e))
-
-    def func_signature_checker(self):
-        try:
-            signature_checker()
-        except Exception as e:
-            QMessageBox.critical(self, "Ошибка", str(e))
-
-    def func_registry_parser(self):
-        try:
-            registry_parser()
-        except Exception as e:
-            QMessageBox.critical(self, "Ошибка", str(e))
-
-    def func_recycle_bin_analyzer(self):
-        try:
-           recycle_bin_analyzer()
-        except Exception as e:
-            QMessageBox.critical(self, "Ошибка", str(e))
+def main():
+    show_title()
+    while True:
+        show_menu()
+        console.print("[green]Введите номер пункта[/]")
+        choice = Prompt.ask("", choices=["0", "1", "2", "3", "4", "5"])
+        if choice == "0":
+            console.print("Выход из программы. Пока!", style="bold red")
+            break
+        elif choice == "1":
+            console.print("Запуск EverythingReplace...", style="red")
+        elif choice == "2":
+            console.print("Запуск RecycleBinAnalyzer...", style="red")
+        elif choice == "3":
+            console.print("Запуск Registry Parser...", style="red")
+        elif choice == "4":
+            console.print("Запуск Signature Checker (.exe)...", style="red")
+        elif choice == "5":
+            console.print("Запуск Signature Checker (.dll)...", style="red")
+        else:
+            console.print("Некорректный ввод!", style="bold red")
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = SpaceScanner()
-    window.show()
-    sys.exit(app.exec_()) 
+    main()
