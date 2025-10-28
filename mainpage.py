@@ -35,6 +35,28 @@ def show_menu():
     table.add_row("0", "Выход из программы")
     console.print(table)
 
+def show_registry_parser_menu():
+    console.print(Panel(Text("Registry Parser - выберите пункт:\n"
+                              "1. OpenPidSaveMRU\n"
+                              "2. PrefetchEnable\n"
+                              "3. RecentDocs\n"
+                              "4. NetworkHistory\n"
+                              "5. PcaSvcCheck", style="bold cyan"),
+                        title="Registry Parser Меню", border_style="cyan"))
+    choice = Prompt.ask("Введите номер пункта", choices=["1", "2", "3", "4", "5", "0"])
+    if choice == "0":
+        return
+    elif choice == "1":
+        console.print("Запуск OpenPidSaveMRU...", style="yellow")
+    elif choice == "2":
+        console.print("Запуск PrefetchEnable...", style="yellow")
+    elif choice == "3":
+        console.print("Запуск RecentDocs...", style="yellow")
+    elif choice == "4":
+        console.print("Запуск NetworkHistory...", style="yellow")
+    elif choice == "5":
+        console.print("Запуск PcaSvcCheck...", style="yellow")
+
 def main():
     show_title()
     while True:
@@ -49,7 +71,7 @@ def main():
         elif choice == "2":
             console.print("Запуск RecycleBinAnalyzer...", style="red")
         elif choice == "3":
-            console.print("Запуск Registry Parser...", style="red")
+            show_registry_parser_menu()
         elif choice == "4":
             console.print("Запуск Signature Checker (.exe)...", style="red")
         elif choice == "5":
