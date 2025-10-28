@@ -30,9 +30,13 @@ def search_keywords_and_save():
         drive_path = f"{drive_letter}:\\"
         if os.path.exists(drive_path):
             drives.append(drive_path)
+    user_profile = os.environ.get('USERPROFILE', '')
+    desktop_path = os.path.join(user_profile, 'Desktop')
+    downloads_path = os.path.join(user_profile, 'Downloads')
+    documents_path = os.path.join(user_profile, 'Documents')
+    user_dirs = [desktop_path, downloads_path, documents_path]
 
     appdata_dirs = ["Roaming", "Local", "LocalLow"]
-
     for drive in drives:
         for root, dirs, files in os.walk(drive):
             try:
@@ -53,6 +57,17 @@ def search_keywords_and_save():
                                 results.append({"path": root, "match": keyword, "location": "AppData"})
                     except Exception:
                         continue
+    for user_dir in user_dirs:
+        if os.path.exists(user_dir):
+            for root, dirs, files in os.walk(user_dir):
+                try:
+                    folder_name = os.path.basename(root).lower()
+                    for keyword in keywords:
+                        if folder_name.startswith(keyword.lower()):
+                            results.append({"path": root, "match": keyword, "location": "UserFolder"})
+                except Exception:
+                    continue
+
     with open(output_file, mode='w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f) 
         writer.writerow(["Found Path", "Matched Keyword", "Location"])
@@ -62,4 +77,4 @@ def search_keywords_and_save():
     print(f"Результаты сохранены в {output_file}")
 
 if __name__ == "__main__":
-    search_keywords_and_save() 
+    search_keywords_and_save()
