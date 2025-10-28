@@ -32,6 +32,7 @@ def show_menu():
     table.add_row("3", "Registry Parser")
     table.add_row("4", "Signature Checker (.exe)")
     table.add_row("5", "Signature Checker (.dll)")
+    table.add_row("6", "Firewall Checker")
     table.add_row("0", "Выход из программы")
     console.print(table)
 
@@ -76,6 +77,8 @@ def main():
             console.print("Запуск Signature Checker (.exe)...", style="red")
         elif choice == "5":
             console.print("Запуск Signature Checker (.dll)...", style="red")
+        elif choice == "6":
+            console.print("Запуск Firewall Checker ...", style="red")
         else:
             console.print("Некорректный ввод!", style="bold red")
 
