@@ -30,7 +30,7 @@ def show_menu():
     table.add_row("1", "EverythingReplace")
     table.add_row("2", "RecycleBinAnalyzer")
     table.add_row("3", "Registry Parser")
-    table.add_row("4", "Signature Checker (.exe)")
+    table.add_row("4", "Проверка запущенных exe/bat/py")
     table.add_row("5", "Signature Checker (.dll)")
     table.add_row("6", "Firewall Checker")
     table.add_row("7", "Service Checker")
@@ -75,7 +75,7 @@ def main():
         elif choice == "3":
             show_registry_parser_menu()
         elif choice == "4":
-            console.print("Запуск Signature Checker (.exe)...", style="red")
+            console.print("Проверка запущенных exe/bat/py...", style="red")
         elif choice == "5":
             console.print("Запуск Signature Checker (.dll)...", style="red")
         elif choice == "6":
