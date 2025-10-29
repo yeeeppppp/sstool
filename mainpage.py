@@ -27,8 +27,8 @@ def show_menu():
     table = Table(title="Выберите сканирование", style="red")
     table.add_column("Номер", justify="center", style="bold red")
     table.add_column("Описание", style="white")
-    table.add_row("1", "EverythingReplace")
-    table.add_row("2", "RecycleBinAnalyzer")
+    table.add_row("1", "Everything Replace")
+    table.add_row("2", "RecycleBin Analyzer")
     table.add_row("3", "Registry Parser")
     table.add_row("4", "Проверка запущенных exe/bat/py")
     table.add_row("5", "Signature Checker (.dll)")
@@ -83,7 +83,7 @@ def main():
             console.print("Запуск Firewall Checker ...", style="red")
         elif choice == "7":
             console.print("Запуск Service Checker ...", style="red")
-        elif choice =="8" :
+        elif choice == "8":
             console.print("Проверка очистки ...", style="red")
         else:
             console.print("Некорректный ввод!", style="bold red")
