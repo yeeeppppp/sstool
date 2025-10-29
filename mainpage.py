@@ -34,6 +34,7 @@ def show_menu():
     table.add_row("5", "Signature Checker (.dll)")
     table.add_row("6", "Firewall Checker")
     table.add_row("7", "Service Checker")
+    table.add_row("8", "Проверка очистки USN и журнала аудита")
     table.add_row("0", "Выход из программы")
     console.print(table)
 
@@ -64,7 +65,7 @@ def main():
     while True:
         show_menu()
         console.print("[green]Введите номер пункта[/]")
-        choice = Prompt.ask("", choices=["0", "1", "2", "3", "4", "5", "6", "7"])
+        choice = Prompt.ask("", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8"])
         if choice == "0":
             console.print("Выход из программы. Пока!", style="bold red")
             break
@@ -82,6 +83,8 @@ def main():
             console.print("Запуск Firewall Checker ...", style="red")
         elif choice == "7":
             console.print("Запуск Service Checker ...", style="red")
+        elif choice =="8" :
+            console.print("Проверка очистки ...", style="red")
         else:
             console.print("Некорректный ввод!", style="bold red")
 
