@@ -64,7 +64,7 @@ def main():
     while True:
         show_menu()
         console.print("[green]Введите номер пункта[/]")
-        choice = Prompt.ask("", choices=["0", "1", "2", "3", "4", "5", "6"])
+        choice = Prompt.ask("", choices=["0", "1", "2", "3", "4", "5", "6", "7"])
         if choice == "0":
             console.print("Выход из программы. Пока!", style="bold red")
             break
