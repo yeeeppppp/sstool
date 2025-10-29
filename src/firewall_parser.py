@@ -93,7 +93,22 @@ def main():
         "1.16.5.exe",
         "Beta 1.16.5.exe",
         "Alpha 1.16.5.exe",
-        "Celestial.exe"
+        "Celestial.exe",
+        "Takker.exe",
+        "Catlavan.exe",
+        "DeltaLoader.exe",
+        "NTFLoader.exe",
+        "TelamonCleaner",
+        "Wexside.exe",
+        "FLauncher.exe",
+        "NewLauncher.exe",
+        "Beta1.16.5.exe",
+        "Alpha1.16.5.exe",
+        "ExLoader.exe",
+        "Exloader.exe",
+        "ExtremeInjector.exe",
+        "extremeinjector.exe",
+        "Fakker.exe"
     ]
 
     filtered_rules = []
