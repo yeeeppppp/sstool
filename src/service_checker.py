@@ -2,7 +2,7 @@ import subprocess
 from colorama import init, Fore, Style
 
 init(autoreset=True)
-services = ["PcaSvc", "EventLog", "Bam", "AppInfo", "DPS"]
+services = ["PcaSvc", "EventLog", "Bam", "AppInfo", "DPS", "Sysmain", "Diagtrack", "Dusmsvc",]
 
 def check_service(service_name):
     """
