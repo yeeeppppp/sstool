@@ -26,6 +26,7 @@ class JavaCheatFileDetector:
         """Возвращает список подозрительных мест для сканирования"""
         locations = []
         
+        # Пользовательские папки
         user_folders = [
             "Downloads",
             "Desktop", 
@@ -42,6 +43,8 @@ class JavaCheatFileDetector:
             path = os.path.expanduser(f"~\\{folder}")
             if os.path.exists(path):
                 locations.append(path)
+        
+        # Системные временные папки
         system_temp_folders = [
             "C:\\Temp",
             "C:\\Windows\\Temp",
@@ -58,9 +61,12 @@ class JavaCheatFileDetector:
     def fast_scan_file(self, file_path):
         """Быстрая проверка файла на соответствие сигнатуре"""
         try:
+            # Быстрая проверка размера
             file_size = os.path.getsize(file_path)
             if not (self.min_size <= file_size <= self.max_size):
                 return None
+            
+            # Используем memory mapping для быстрого поиска
             with open(file_path, 'rb') as f:
                 with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
                     if mm.find(self.signature) != -1:
@@ -69,7 +75,6 @@ class JavaCheatFileDetector:
                             'file_size': file_size,
                             'file_extension': os.path.splitext(file_path)[1].lower(),
                             'found_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                            'signature_match': 'net/java/i.class',
                             'file_modified': datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S'),
                             'file_created': datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M:%S'),
                             'detection_type': 'FILE_SCAN'
@@ -92,6 +97,7 @@ class JavaCheatFileDetector:
                         print(f"🚨 Найден: {entry.path}")
                         print(f"   📅 Изменен: {result['file_modified']}")
                 elif entry.is_dir():
+                    # Пропускаем системные папки для скорости
                     if not entry.name.startswith(('.', '$', 'Windows', 'System32')):
                         self.scan_directory_fast(entry.path)
         except (PermissionError, OSError):
@@ -144,6 +150,8 @@ class JavaCheatFileDetector:
         """Быстрый анализ Java процесса"""
         if not cmdline:
             return
+        
+        # Быстрый поиск целевых файлов в командной строке
         for i, arg in enumerate(cmdline):
             if (arg == '-jar' and i + 1 < len(cmdline)) or (len(arg) > 3 and '.' in arg and not arg.startswith('-')):
                 target = cmdline[i + 1] if arg == '-jar' else arg
@@ -152,7 +160,7 @@ class JavaCheatFileDetector:
                     if result:
                         result['detection_type'] = 'PROCESS_MONITOR'
                         result['process_pid'] = pid
-                        result['process_cmdline'] = ' '.join(cmdline[:3]) + '...'  # Сохраняем только начало
+                        result['process_cmdline'] = ' '.join(cmdline[:3]) + '...'
                         result['process_start_time'] = datetime.fromtimestamp(create_time).strftime('%Y-%m-%d %H:%M:%S')
                         
                         print(f"🚨 Найден в процессе {pid}: {target}")
@@ -162,9 +170,14 @@ class JavaCheatFileDetector:
     
     def full_scan_fast(self):
         """Быстрое полное сканирование"""
+        # Запускаем сканирование файлов в отдельном потоке
         scan_thread = threading.Thread(target=self.quick_scan_suspicious_locations)
         scan_thread.start()
-        self.monitor_java_processes_fast(180)  # 3 минуты
+        
+        # Запускаем мониторинг процессов
+        self.monitor_java_processes_fast(180)
+        
+        # Ждем завершения сканирования
         scan_thread.join()
         self.scan_complete = True
         
@@ -177,8 +190,8 @@ class JavaCheatFileDetector:
         with open(self.output_file, 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = [
                 'detection_type', 'found_time', 'file_path', 'file_size', 
-                'file_extension', 'signature_match', 'file_modified', 
-                'file_created', 'process_pid', 'process_cmdline', 'process_start_time'
+                'file_extension', 'file_modified', 'file_created', 
+                'process_pid', 'process_cmdline', 'process_start_time'
             ]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
@@ -190,7 +203,6 @@ class JavaCheatFileDetector:
                     'file_path': result.get('file_path', ''),
                     'file_size': result.get('file_size', 0),
                     'file_extension': result.get('file_extension', ''),
-                    'signature_match': result.get('signature_match', ''),
                     'file_modified': result.get('file_modified', ''),
                     'file_created': result.get('file_created', ''),
                     'process_pid': result.get('process_pid', ''),
@@ -229,4 +241,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+    
