@@ -1,13 +1,14 @@
 import os
 import sys
+import importlib
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 from rich.prompt import Prompt
 from rich.table import Table
 
-# Добавляем текущую папку в путь для импортов
-sys.path.append(os.path.dirname(__file__))
+# Добавляем папку src в путь для импортов
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 console = Console()
 
@@ -45,67 +46,71 @@ def show_menu():
     table.add_row("0", "Выход из программы")
     console.print(table)
 
-def load_functions():
-    """Динамически загружает функции из всех модулей"""
-    
-    # Словарь для импортов
-    modules_to_import = {
-        'file_searcher': 'everything_replace',
-        'recycle_bin_analyzer': 'recycle_bin_analyzer', 
-        'registry_parser': 'registry_parser',
-        'LastExt': 'check_running_files',
-        'signature_checker_dll': 'signature_checker_dll',
-        'firewall_parser': 'firewall_checker',
-        'service_checker': 'service_checker',
-        'evtx_check': 'check_usn_and_audit',
-        'usb': 'check_usb_devices',
-        'ddfo_detect': 'analyze_third_party_software'
-    }
-    
-    functions = {}
-    
-    for module_name, function_name in modules_to_import.items():
+class FunctionManager:
+    def __init__(self):
+        # ПУЛ ФУНКЦИЙ: Название в меню -> (имя файла, название функции)
+        self.function_pool = {
+            "1": {"menu_name": "Everything Replace", "file": "file_searcher", "function": "main"},
+            "2": {"menu_name": "RecycleBin Analyzer", "file": "recycle_bin_analyzer", "function": "main"},
+            "3": {"menu_name": "Registry Parser", "file": "registry_parser", "function": "main"},
+            "4": {"menu_name": "Проверка запущенных exe/bat/py", "file": "LastExt", "function": "main"},
+            "5": {"menu_name": "Поиск DLL", "file": "signature_checker_dll", "function": "main"},
+            "6": {"menu_name": "Firewall Checker", "file": "firewall_parser", "function": "main"},
+            "7": {"menu_name": "Service Checker", "file": "service_checker", "function": "main"},
+            "8": {"menu_name": "Проверка очистки USN и журнала аудита", "file": "evtx_check", "function": "main"},
+            "9": {"menu_name": "Проверка подключенных USB", "file": "usb", "function": "main"},
+            "10": {"menu_name": "Анализ стороннего ПО", "file": "ddfo_detect", "function": "main"}
+        }
+        
+    def load_function(self, choice):
+        """Загружает и выполняет функцию по выбору"""
+        if choice not in self.function_pool:
+            return False
+            
+        func_info = self.function_pool[choice]
+        menu_name = func_info["menu_name"]
+        file_name = func_info["file"]
+        function_name = func_info["function"]
+        
+        console.print(f"\n[bold yellow]Запуск {menu_name}...[/bold yellow]")
+        
         try:
-            # Динамический импорт
-            module = __import__(module_name)
-            function = getattr(module, function_name)
-            functions[function_name] = function
-            console.print(f"[green]✓ Загружен: {module_name}.{function_name}[/green]")
-        except ImportError as e:
-            console.print(f"[yellow]⚠ Модуль {module_name} не найден: {e}[/yellow]")
-            # Создаем заглушку
-            def stub_function():
-                console.print(f"[yellow]{function_name}: Модуль {module_name}.py не найден[/yellow]")
-            functions[function_name] = stub_function
-        except AttributeError as e:
-            console.print(f"[yellow]⚠ Функция {function_name} не найдена в {module_name}: {e}[/yellow]")
-            # Создаем заглушку
-            def stub_function():
-                console.print(f"[yellow]{function_name}: Функция не найдена в {module_name}.py[/yellow]")
-            functions[function_name] = stub_function
-    
-    return functions
+            # Динамически импортируем модуль
+            module = importlib.import_module(file_name)
+            
+            # Ищем функцию в модуле
+            if hasattr(module, function_name):
+                func = getattr(module, function_name)
+                func()  # Вызываем функцию
+                console.print(f"[bold green]✓ {menu_name} завершено![/bold green]")
+                return True
+            else:
+                # Если функции нет, ищем любую подходящую
+                functions = [name for name in dir(module) 
+                           if not name.startswith('_') and callable(getattr(module, name))]
+                
+                if functions:
+                    # Берем первую найденную функцию
+                    func = getattr(module, functions[0])
+                    console.print(f"[yellow]⚠ Функция '{function_name}' не найдена, используем '{functions[0]}'[/yellow]")
+                    func()
+                    console.print(f"[bold green]✓ {menu_name} завершено![/bold green]")
+                    return True
+                else:
+                    console.print(f"[red]✗ В файле {file_name}.py не найдено функций[/red]")
+                    return False
+                    
+        except ImportError:
+            console.print(f"[red]✗ Файл {file_name}.py не найден в папке src[/red]")
+            return False
+        except Exception as e:
+            console.print(f"[red]✗ Ошибка в {menu_name}: {str(e)}[/red]")
+            return False
 
 def main():
     show_title()
     
-    # Загружаем все функции
-    console.print("\n[bold cyan]Загрузка модулей...[/bold cyan]")
-    functions = load_functions()
-    
-    # Словарь для связи пунктов меню с функциями
-    menu_actions = {
-        '1': ("Everything Replace", functions.get('everything_replace')),
-        '2': ("RecycleBin Analyzer", functions.get('recycle_bin_analyzer')),
-        '3': ("Registry Parser", functions.get('registry_parser')),
-        '4': ("Проверка запущенных файлов", functions.get('check_running_files')),
-        '5': ("Поиск DLL", functions.get('signature_checker_dll')),
-        '6': ("Firewall Checker", functions.get('firewall_checker')),
-        '7': ("Service Checker", functions.get('service_checker')),
-        '8': ("Проверка USN и аудита", functions.get('check_usn_and_audit')),
-        '9': ("Проверка USB устройств", functions.get('check_usb_devices')),
-        '10': ("Анализ стороннего ПО", functions.get('analyze_third_party_software'))
-    }
+    function_manager = FunctionManager()
     
     while True:
         show_menu()
@@ -116,25 +121,12 @@ def main():
             console.print("Выход из программы. Пока!", style="bold red")
             break
         
-        if choice in menu_actions:
-            function_name, function = menu_actions[choice]
-            if function:
-                console.print(f"\n[bold yellow]Запуск {function_name}...[/bold yellow]")
-                try:
-                    # Вызываем функцию
-                    function()
-                    console.print(f"[bold green]✓ {function_name} завершено![/bold green]")
-                except Exception as e:
-                    console.print(f"[bold red]✗ Ошибка в {function_name}: {str(e)}[/bold red]")
-            else:
-                console.print(f"[bold red]✗ Функция {function_name} не загружена[/bold red]")
-        else:
-            console.print("Некорректный ввод!", style="bold red")
+        # Выполняем выбранную функцию
+        function_manager.load_function(choice)
         
         # Пауза перед следующим выбором
-        if choice != "0":
-            console.print("\n[italic]Нажмите Enter для продолжения...[/italic]")
-            input()
+        console.print("\n[italic]Нажмите Enter для продолжения...[/italic]")
+        input()
 
 if __name__ == "__main__":
     main()

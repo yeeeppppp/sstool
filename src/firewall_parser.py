@@ -1,3 +1,5 @@
+def main():
+     print("Функция выполняется...")
 import win32com.client
 import os
 

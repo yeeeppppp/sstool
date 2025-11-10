@@ -1,3 +1,5 @@
+def main():
+     print("Функция выполняется...")
 import subprocess
 from colorama import init, Fore, Style
 

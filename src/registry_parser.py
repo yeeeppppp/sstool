@@ -1,3 +1,5 @@
+def main():
+     print("Функция выполняется...")
 import winreg
 import csv
 import os

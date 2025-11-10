@@ -1,3 +1,5 @@
+def main():
+     print("Функция выполняется...")
 import os
 import csv
 import psutil
@@ -238,7 +240,6 @@ def main():
         print("\n⏹️ Прервано")
     except Exception as e:
         print(f"❌ Ошибка: {e}")
-
 if __name__ == "__main__":
     main()
     

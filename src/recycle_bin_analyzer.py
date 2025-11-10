@@ -1,3 +1,5 @@
+def main():
+     print("Функция выполняется...")
 import os
 import datetime
 import string
