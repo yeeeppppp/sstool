@@ -7,7 +7,7 @@ from rich.text import Text
 from rich.prompt import Prompt
 from rich.table import Table
 
-
+# Добавляем папку src в путь для импортов
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 console = Console()
@@ -48,7 +48,6 @@ def show_menu():
 
 class FunctionManager:
     def __init__(self):
-        
         self.function_pool = {
             "1": {"menu_name": "Everything Replace", "file": "file_searcher", "function": "main"},
             "2": {"menu_name": "RecycleBin Analyzer", "file": "recycle_bin_analyzer", "function": "main"},
@@ -63,7 +62,6 @@ class FunctionManager:
         }
         
     def load_function(self, choice):
-        """Загружает и выполняет функцию по выбору"""
         if choice not in self.function_pool:
             return False
             
@@ -72,39 +70,45 @@ class FunctionManager:
         file_name = func_info["file"]
         function_name = func_info["function"]
         
-        console.print(f"\n[bold yellow]Запуск {menu_name}...[/bold yellow]")
+        console.print(f"Запуск {menu_name}...")
+        console.print(f"Файл: {file_name}.py")
         
         try:
-           
             module = importlib.import_module(file_name)
             
-           
             if hasattr(module, function_name):
                 func = getattr(module, function_name)
-                func()  
-                console.print(f"[bold green]✓ {menu_name} завершено![/bold green]")
+                console.print(f"Функция '{function_name}' найдена")
+                result = func()
+                console.print(f"{menu_name} завершено!")
+                
+                if result is not None:
+                    console.print(f"Результат: {result}")
                 return True
             else:
-      
                 functions = [name for name in dir(module) 
                            if not name.startswith('_') and callable(getattr(module, name))]
                 
                 if functions:
- 
                     func = getattr(module, functions[0])
-                    console.print(f"[yellow]⚠ Функция '{function_name}' не найдена, используем '{functions[0]}'[/yellow]")
-                    func()
-                    console.print(f"[bold green]✓ {menu_name} завершено![/bold green]")
+                    console.print(f"Функция '{function_name}' не найдена, используем '{functions[0]}'")
+                    result = func()
+                    console.print(f"{menu_name} завершено!")
+                    
+                    if result is not None:
+                        console.print(f"Результат: {result}")
                     return True
                 else:
-                    console.print(f"[red]✗ В файле {file_name}.py не найдено функций[/red]")
+                    console.print(f"В файле {file_name}.py не найдено функций")
                     return False
                     
         except ImportError:
-            console.print(f"[red]✗ Файл {file_name}.py не найден в папке src[/red]")
+            console.print(f"Файл {file_name}.py не найден в папке src")
             return False
         except Exception as e:
-            console.print(f"[red]✗ Ошибка в {menu_name}: {str(e)}[/red]")
+            console.print(f"Ошибка в {menu_name}: {str(e)}")
+            import traceback
+            console.print(f"Подробности: {traceback.format_exc()}")
             return False
 
 def main():
@@ -114,7 +118,7 @@ def main():
     
     while True:
         show_menu()
-        console.print("[green]Введите номер пункта[/]")
+        console.print("Введите номер пункта")
         choice = Prompt.ask("", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
         
         if choice == "0":
@@ -123,7 +127,7 @@ def main():
         
         function_manager.load_function(choice)
         
-        console.print("\n[italic]Нажмите Enter для продолжения...[/italic]")
+        console.print("Нажмите Enter для продолжения...")
         input()
 
 if __name__ == "__main__":
