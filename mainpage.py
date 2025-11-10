@@ -7,7 +7,7 @@ from rich.text import Text
 from rich.prompt import Prompt
 from rich.table import Table
 
-# Добавляем папку src в путь для импортов
+
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 console = Console()
@@ -48,7 +48,7 @@ def show_menu():
 
 class FunctionManager:
     def __init__(self):
-        # ПУЛ ФУНКЦИЙ: Название в меню -> (имя файла, название функции)
+        
         self.function_pool = {
             "1": {"menu_name": "Everything Replace", "file": "file_searcher", "function": "main"},
             "2": {"menu_name": "RecycleBin Analyzer", "file": "recycle_bin_analyzer", "function": "main"},
@@ -75,22 +75,22 @@ class FunctionManager:
         console.print(f"\n[bold yellow]Запуск {menu_name}...[/bold yellow]")
         
         try:
-            # Динамически импортируем модуль
+           
             module = importlib.import_module(file_name)
             
-            # Ищем функцию в модуле
+           
             if hasattr(module, function_name):
                 func = getattr(module, function_name)
-                func()  # Вызываем функцию
+                func()  
                 console.print(f"[bold green]✓ {menu_name} завершено![/bold green]")
                 return True
             else:
-                # Если функции нет, ищем любую подходящую
+      
                 functions = [name for name in dir(module) 
                            if not name.startswith('_') and callable(getattr(module, name))]
                 
                 if functions:
-                    # Берем первую найденную функцию
+ 
                     func = getattr(module, functions[0])
                     console.print(f"[yellow]⚠ Функция '{function_name}' не найдена, используем '{functions[0]}'[/yellow]")
                     func()
@@ -121,10 +121,8 @@ def main():
             console.print("Выход из программы. Пока!", style="bold red")
             break
         
-        # Выполняем выбранную функцию
         function_manager.load_function(choice)
         
-        # Пауза перед следующим выбором
         console.print("\n[italic]Нажмите Enter для продолжения...[/italic]")
         input()
 
