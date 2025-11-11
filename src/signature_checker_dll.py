@@ -150,17 +150,7 @@ class DLLAnalyzer:
         """Поиск DLL файлов по всем критериям"""
         search_paths = self.get_all_drives()
         
-        print("ПОИСК DLL ФАЙЛОВ")
-        print("=" * 80)
-        print("ОБЩИЙ ПОИСК:")
-        print("- Диапазон размеров: 30KB - 6000KB")
-        print(f"- Количество ключевых слов: {len(self.keywords_general)}")
-        
-        print("\nСПЕЦИАЛЬНЫЙ ПОИСК:")
-        print("- Диапазон размеров: 460KB - 480KB")
-        print("- Поиск по одному ключевому слову")
-        print("=" * 80)
-        
+        print("ПОИСК DLL ФАЙЛОВ") 
         total_scanned = 0
         general_found = 0
         special_found = 0
