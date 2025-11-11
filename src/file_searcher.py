@@ -1,8 +1,10 @@
-def main():
-     print("Функция выполняется...")
 import os
 import csv
 import string
+
+def main():
+    print("Запуск Everything Replace...")
+    search_keywords_and_save()
 
 keywords = [
     "impact", "wurst", "bleachhack", "aristois", "huzuni", "skillclient", "inertia", "ares", "sigma", "meteor",
