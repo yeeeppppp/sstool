@@ -79,4 +79,4 @@ def search_keywords_and_save():
     print(f"Результаты сохранены в {output_file}")
 
 if __name__ == "__main__":
-    search_keywords_and_save()
+    main()
