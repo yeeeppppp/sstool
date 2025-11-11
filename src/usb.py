@@ -24,7 +24,7 @@ class USBDriveLogger:
     
     def download_usbdrivelog(self):
         """Скачивает USBDriveLog без использования requests"""
-        print("Скачивание USBDriveLog...")
+       
         
         try:
             urllib.request.urlretrieve(self.download_url, self.download_path)
@@ -37,7 +37,7 @@ class USBDriveLogger:
     
     def extract_zip(self):
         """Распаковывает архив"""
-        print("Распаковка архива...")
+        
         
         try:
             with zipfile.ZipFile(self.download_path, 'r') as zip_ref:
@@ -92,7 +92,7 @@ class USBDriveLogger:
     
     def alternative_unplugtime_method(self):
         """Альтернативный метод для работы с UnplugTime"""
-        print("Использование альтернативного метода...")
+       
         
         try:
             import pyautogui
@@ -109,14 +109,14 @@ class USBDriveLogger:
     
     def final_method(self):
         """Финальный метод - прямой запуск с параметрами"""
-        print("Прямой запуск с сбором логов...")
+      
         
         try:
             cmd = '"' + self.exe_path + '" /scomma "C:/output/usb_logs.csv"'
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
             
             if result.returncode == 0:
-                print("Логи USB собраны и сохранены")
+                
                 return True
             else:
                 print("Программа завершилась с ошибкой, но могла собрать логи")
