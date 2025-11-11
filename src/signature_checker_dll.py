@@ -271,7 +271,7 @@ class DLLAnalyzer:
         print("=" * 100)
         
         if self.found_dlls_general:
-            print("\n>>> ОБЩИЙ ПОИСК (30KB-6000KB):")
+            
             for i, dll_info in enumerate(self.found_dlls_general, 1):
                 print(f"{i}. {dll_info['path']}")
                 print(f"   Размер: {dll_info['size_kb']} KB")
@@ -279,7 +279,7 @@ class DLLAnalyzer:
                 print()
         
         if self.found_dlls_special:
-            print("\n>>> СПЕЦИАЛЬНЫЙ ПОИСК (460KB-480KB):")
+           
             start_idx = len(self.found_dlls_general) + 1
             for i, dll_info in enumerate(self.found_dlls_special, start_idx):
                 print(f"{i}. {dll_info['path']}")
@@ -298,8 +298,8 @@ def main():
     analyzer.display_results()
     
     print(f"\nФИНАЛЬНЫЕ РЕЗУЛЬТАТЫ:")
-    print(f"Общий поиск (30KB-6000KB): {general_count} файлов")
-    print(f"Специальный поиск (460KB-480KB): {special_count} файлов")
+    print(f"Общий поиск: {general_count} файлов")
+    print(f"Специальный поиск: {special_count} файлов")
     print(f"Всего найдено: {general_count + special_count} файлов")
     
     if general_count + special_count > 0:
