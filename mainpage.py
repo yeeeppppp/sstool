@@ -6,6 +6,11 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.prompt import Prompt
 from rich.table import Table
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
+from rich.layout import Layout
+from rich.align import Align
+from rich import box
+import time
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
@@ -23,28 +28,157 @@ def show_title():
             ░██                                                                                             
             ░██
 """
-    panel_style = "bold red"
-    console.print(Panel(Text(ascii_art_scanner, style=panel_style), border_style=panel_style))
-    signature = Text("dev: avarice.dll // m3tad0n.", style="italic cyan")
-    console.print(signature, justify="center")
+    
+   
+    title_panel = Panel(
+        Align.center(
+            Text(ascii_art_scanner, style="bold red") +
+            Text("\n" + "═" * 60 + "\n", style="cyan") +
+            Text("ПРОФЕССИОНАЛЬНЫЙ СКАНЕР БЕЗОПАСНОСТИ", style="bold yellow") +
+            Text("\n" + "─" * 40, style="blue")
+        ),
+        box=box.DOUBLE_EDGE,
+        border_style="bright_red",
+        padding=(1, 2),
+        title="[bold white]СИСТЕМА МОНИТОРИНГА[/bold white]",
+        subtitle="[italic cyan]dev: avarice.dll // m3tad0n.[/italic cyan]"
+    )
+    console.print(title_panel)
 
 def show_menu():
-    table = Table(title="Выберите сканирование", style="red")
-    table.add_column("Номер", justify="center", style="bold red")
-    table.add_column("Описание", style="white")
-    table.add_row("1", "Everything Replace")
-    table.add_row("2", "RecycleBin Analyzer")
-    table.add_row("3", "Registry Parser")
-    table.add_row("4", "Проверка запущенных exe/bat/py")
-    table.add_row("5", "Поиск DLL")
-    table.add_row("6", "Firewall Checker")
-    table.add_row("7", "Service Checker")
-    table.add_row("8", "Проверка очистки USN и журнала аудита")
-    table.add_row("9", "Проверка подключенных USB")
-    table.add_row("10", "Анализ стороннего ПО")
-    table.add_row("11", "Анализ модификации")  
-    table.add_row("0", "Выход из программы")
-    console.print(table)
+   
+    menu_table = Table(
+        title="[bold yellow]ВЫБЕРИТЕ ТИП СКАНИРОВАНИЯ[/bold yellow]",
+        show_header=True,
+        header_style="bold magenta",
+        box=box.ROUNDED,
+        border_style="bright_blue",
+        title_style="bold cyan"
+    )
+    
+    menu_table.add_column("№", justify="center", style="bold green", width=8)
+    menu_table.add_column("ОПИСАНИЕ", style="white", width=50)
+    menu_table.add_column("СТАТУС", justify="center", style="yellow", width=15)
+    
+    menu_items = [
+        ("1", "Everything Replace", "ГОТОВ"),
+        ("2", "RecycleBin Analyzer", "ГОТОВ"),
+        ("3", "Registry Parser", "ГОТОВ"),
+        ("4", "Проверка запущенных exe/bat/py", "ГОТОВ"),
+        ("5", "Поиск DLL", "ГОТОВ"),
+        ("6", "Firewall Checker", "ГОТОВ"),
+        ("7", "Service Checker", "ГОТОВ"),
+        ("8", "Проверка очистки USN и журнала аудита", "ГОТОВ"),
+        ("9", "Проверка подключенных USB", "ГОТОВ"),
+        ("10", "Анализ стороннего ПО", "ГОТОВ"),
+        ("11", "Анализ модификации", "ГОТОВ"),
+        ("0", "Выход из программы", "ВЫХОД")
+    ]
+    
+    for num, desc, status in menu_items:
+        menu_table.add_row(
+            f"[bold cyan]{num}[/bold cyan]",
+            f"[white]{desc}[/white]",
+            f"[bold]{status}[/bold]"
+        )
+    
+    console.print()
+    console.print(menu_table)
+
+def show_loading_animation(message="Выполняется сканирование"):
+    """Показывает анимацию загрузки"""
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        transient=True,
+    ) as progress:
+        task = progress.add_task(f"[cyan]{message}...", total=100)
+        
+        for i in range(100):
+            progress.update(task, advance=1)
+            time.sleep(0.02)
+
+def show_success_message(module_name, execution_time=None):
+    """Показывает сообщение об успешном выполнении"""
+    success_panel = Panel(
+        Align.center(
+            Text("СКАНИРОВАНИЕ УСПЕШНО ЗАВЕРШЕНО", style="bold green") +
+            Text(f"\n\nМодуль: [bold white]{module_name}[/bold white]", style="cyan") +
+            (Text(f"\nВремя выполнения: [bold yellow]{execution_time:.2f} сек[/bold yellow]", style="white") 
+             if execution_time else Text("")) +
+            Text("\n\n" + "━" * 40, style="green")
+        ),
+        box=box.ROUNDED,
+        border_style="green",
+        padding=(1, 2),
+        title="[bold white]РЕЗУЛЬТАТ[/bold white]"
+    )
+    console.print(success_panel)
+
+def show_error_message(module_name, error):
+    """Показывает сообщение об ошибке"""
+    error_panel = Panel(
+        Align.center(
+            Text("ОШИБКА ВЫПОЛНЕНИЯ", style="bold red") +
+            Text(f"\n\nМодуль: [bold white]{module_name}[/bold white]", style="cyan") +
+            Text(f"\nОшибка: [bold yellow]{error}[/bold yellow]", style="white") +
+            Text("\n\n" + "━" * 40, style="red")
+        ),
+        box=box.ROUNDED,
+        border_style="red",
+        padding=(1, 2),
+        title="[bold white]ОШИБКА[/bold white]"
+    )
+    console.print(error_panel)
+
+def show_module_not_found(module_name):
+    """Показывает сообщение о ненайденном модуле"""
+    not_found_panel = Panel(
+        Align.center(
+            Text("МОДУЛЬ НЕ НАЙДЕН", style="bold yellow") +
+            Text(f"\n\nФайл: [bold white]{module_name}.py[/bold white]", style="cyan") +
+            Text("\nУбедитесь, что файл находится в папке src", style="white") +
+            Text("\n\n" + "━" * 40, style="yellow")
+        ),
+        box=box.ROUNDED,
+        border_style="yellow",
+        padding=(1, 2),
+        title="[bold white]ВНИМАНИЕ[/bold white]"
+    )
+    console.print(not_found_panel)
+
+def show_function_not_found(module_name, function_name, fallback_function):
+    """Показывает сообщение о ненайденной функции"""
+    function_panel = Panel(
+        Align.center(
+            Text("ИСПОЛЬЗОВАНА АЛЬТЕРНАТИВНАЯ ФУНКЦИЯ", style="bold blue") +
+            Text(f"\n\nМодуль: [bold white]{module_name}[/bold white]", style="cyan") +
+            Text(f"\nФункция не найдена: [bold yellow]{function_name}[/bold yellow]", style="white") +
+            Text(f"\nИспользована: [bold green]{fallback_function}[/bold green]", style="white") +
+            Text("\n\n" + "━" * 40, style="blue")
+        ),
+        box=box.ROUNDED,
+        border_style="blue",
+        padding=(1, 2),
+        title="[bold white]АВТОМАТИЧЕСКАЯ ЗАМЕНА[/bold white]"
+    )
+    console.print(function_panel)
+
+def show_exit_message():
+    """Показывает сообщение о выходе"""
+    exit_panel = Panel(
+        Align.center(
+            Text("ВЫХОД ИЗ ПРОГРАММЫ", style="bold magenta") +
+            Text("\n\n" + "═" * 40, style="magenta")
+        ),
+        box=box.DOUBLE_EDGE,
+        border_style="bright_magenta",
+        padding=(1, 2),
+        title="[bold white]ЗАВЕРШЕНИЕ РАБОТЫ[/bold white]"
+    )
+    console.print(exit_panel)
 
 class FunctionManager:
     def __init__(self):
@@ -59,7 +193,7 @@ class FunctionManager:
             "8": {"menu_name": "Проверка очистки USN и журнала аудита", "file": "evtx_check", "function": "main"},
             "9": {"menu_name": "Проверка подключенных USB", "file": "usb", "function": "main"},
             "10": {"menu_name": "Анализ стороннего ПО", "file": "ddfo_detect", "function": "main"},
-            "11": {"menu_name": "Анализ модификации", "file": "modanalyzer", "function": "main"}  # Добавлена новая связка
+            "11": {"menu_name": "Анализ модификации", "file": "modanalyzer", "function": "main"}
         }
         
     def load_function(self, choice):
@@ -72,35 +206,58 @@ class FunctionManager:
         file_name = func_info["file"]
         function_name = func_info["function"]
         
-        console.print(f"\n[bold yellow]Запуск {menu_name}...[/bold yellow]")
+     
+        start_panel = Panel(
+            Align.center(
+                Text("ЗАПУСК СКАНИРОВАНИЯ", style="bold yellow") +
+                Text(f"\n\nМодуль: [bold white]{menu_name}[/bold white]", style="cyan") +
+                Text(f"\nФайл: [bold green]{file_name}.py[/bold green]", style="white") +
+                Text("\n\n" + "━" * 40, style="yellow")
+            ),
+            box=box.ROUNDED,
+            border_style="yellow",
+            padding=(1, 2),
+            title="[bold white]ЗАПУСК[/bold white]"
+        )
+        console.print(start_panel)
         
         try:
+            
+            show_loading_animation(f"Инициализация {menu_name}")
+            
+            start_time = time.time()
             module = importlib.import_module(file_name)
             
             if hasattr(module, function_name):
                 func = getattr(module, function_name)
                 func()  
-                console.print(f"[bold green] {menu_name} завершено![/bold green]")
+                execution_time = time.time() - start_time
+                show_success_message(menu_name, execution_time)
                 return True
             else:
                 functions = [name for name in dir(module) 
                            if not name.startswith('_') and callable(getattr(module, name))]
                 
                 if functions:
-                    func = getattr(module, functions[0])
-                    console.print(f"[yellow] Функция '{function_name}' не найдена, используем '{functions[0]}'[/yellow]")
+                    fallback_function = functions[0]
+                    show_function_not_found(file_name, function_name, fallback_function)
+                    
+                    show_loading_animation(f"Выполнение {menu_name}")
+                    start_time = time.time()
+                    func = getattr(module, fallback_function)
                     func()
-                    console.print(f"[bold green] {menu_name} завершено![/bold green]")
+                    execution_time = time.time() - start_time
+                    show_success_message(menu_name, execution_time)
                     return True
                 else:
-                    console.print(f"[red] В файле {file_name}.py не найдено функций[/red]")
+                    show_error_message(menu_name, "В модуле не найдено подходящих функций")
                     return False
                     
         except ImportError:
-            console.print(f"[red] Файл {file_name}.py не найден в папке src[/red]")
+            show_module_not_found(file_name)
             return False
         except Exception as e:
-            console.print(f"[red] Ошибка в {menu_name}: {str(e)}[/red]")
+            show_error_message(menu_name, str(e))
             return False
 
 def main():
@@ -110,16 +267,40 @@ def main():
     
     while True:
         show_menu()
-        console.print("[green]Введите номер пункта[/]")
-        choice = Prompt.ask("", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"])  # Добавлен выбор 11
+        console.print()
+        
+       
+        choice_panel = Panel(
+            Align.center(
+                Text("ВВЕДИТЕ НОМЕР ПУНКТА МЕНЮ", style="bold green")
+            ),
+            box=box.ROUNDED,
+            border_style="bright_green",
+            padding=(0, 2)
+        )
+        console.print(choice_panel)
+        
+        choice = Prompt.ask(
+            "Ваш выбор", 
+            choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"],
+            show_choices=False
+        )
         
         if choice == "0":
-            console.print("Выход из программы. Пока!", style="bold red")
+            show_exit_message()
             break
         
         function_manager.load_function(choice)
         
-        console.print("\n[italic]Нажмите Enter для продолжения...[/italic]")
+        continue_panel = Panel(
+            Align.center(
+                Text("НАЖМИТЕ ENTER ДЛЯ ПРОДОЛЖЕНИЯ", style="bold cyan")
+            ),
+            box=box.SQUARE,
+            border_style="cyan",
+            padding=(0, 2)
+        )
+        console.print(continue_panel)
         input()
 
 if __name__ == "__main__":
