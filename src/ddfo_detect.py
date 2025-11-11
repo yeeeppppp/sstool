@@ -28,7 +28,7 @@ class JavaCheatFileDetector:
         """Возвращает список подозрительных мест для сканирования"""
         locations = []
         
-        # Пользовательские папки
+        
         user_folders = [
             "Downloads",
             "Desktop", 
@@ -46,7 +46,7 @@ class JavaCheatFileDetector:
             if os.path.exists(path):
                 locations.append(path)
         
-        # Системные временные папки
+        
         system_temp_folders = [
             "C:\\Temp",
             "C:\\Windows\\Temp",
@@ -63,12 +63,12 @@ class JavaCheatFileDetector:
     def fast_scan_file(self, file_path):
         """Быстрая проверка файла на соответствие сигнатуре"""
         try:
-            # Быстрая проверка размера
+           
             file_size = os.path.getsize(file_path)
             if not (self.min_size <= file_size <= self.max_size):
                 return None
             
-            # Используем memory mapping для быстрого поиска
+           
             with open(file_path, 'rb') as f:
                 with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
                     if mm.find(self.signature) != -1:
@@ -96,10 +96,10 @@ class JavaCheatFileDetector:
                     result = self.fast_scan_file(entry.path)
                     if result:
                         self.found_files.append(result)
-                        print(f"🚨 Найден: {entry.path}")
-                        print(f"   📅 Изменен: {result['file_modified']}")
+                        print(f" Найден: {entry.path}")
+                        print(f"   Изменен: {result['file_modified']}")
                 elif entry.is_dir():
-                    # Пропускаем системные папки для скорости
+                   
                     if not entry.name.startswith(('.', '$', 'Windows', 'System32')):
                         self.scan_directory_fast(entry.path)
         except (PermissionError, OSError):
@@ -124,7 +124,7 @@ class JavaCheatFileDetector:
         self.parallel_scan_locations(locations)
         scan_time = time.time() - start_time
         
-        print(f"\n📊 Просканировано файлов: {self.files_scanned} (за {scan_time:.1f} сек)")
+        print(f"\n Просканировано файлов: {self.files_scanned} (за {scan_time:.1f} сек)")
         return self.found_files
     
     def monitor_java_processes_fast(self, duration=180):
@@ -153,7 +153,7 @@ class JavaCheatFileDetector:
         if not cmdline:
             return
         
-        # Быстрый поиск целевых файлов в командной строке
+       
         for i, arg in enumerate(cmdline):
             if (arg == '-jar' and i + 1 < len(cmdline)) or (len(arg) > 3 and '.' in arg and not arg.startswith('-')):
                 target = cmdline[i + 1] if arg == '-jar' else arg
@@ -165,21 +165,21 @@ class JavaCheatFileDetector:
                         result['process_cmdline'] = ' '.join(cmdline[:3]) + '...'
                         result['process_start_time'] = datetime.fromtimestamp(create_time).strftime('%Y-%m-%d %H:%M:%S')
                         
-                        print(f"🚨 Найден в процессе {pid}: {target}")
-                        print(f"   📅 Изменен: {result['file_modified']}")
+                        print(f" Найден в процессе {pid}: {target}")
+                        print(f"    Изменен: {result['file_modified']}")
                         self.found_files.append(result)
                     break
     
     def full_scan_fast(self):
         """Быстрое полное сканирование"""
-        # Запускаем сканирование файлов в отдельном потоке
+        
         scan_thread = threading.Thread(target=self.quick_scan_suspicious_locations)
         scan_thread.start()
         
-        # Запускаем мониторинг процессов
+       
         self.monitor_java_processes_fast(180)
         
-        # Ждем завершения сканирования
+        
         scan_thread.join()
         self.scan_complete = True
         
@@ -213,20 +213,20 @@ class JavaCheatFileDetector:
                 }
                 writer.writerow(row)
         
-        print(f"💾 Результаты сохранены в: {self.output_file}")
+        print(f" Результаты сохранены в: {self.output_file}")
     
     def print_summary(self, results):
         """Выводит краткую сводку"""
         if results:
-            print(f"\n🎯 Найдено файлов: {len(results)}")
+            print(f"\n Найдено файлов: {len(results)}")
         else:
-            print(f"\n✅ Файлы не найдены")
+            print(f"\n Файлы не найдены")
 
 def main():
     detector = JavaCheatFileDetector()
     
     try:
-        print("🔍 Сканирование...")
+        print(" Сканирование...")
         
         start_time = time.time()
         results = detector.full_scan_fast()
@@ -234,12 +234,12 @@ def main():
         
         detector.save_results_to_csv(results)
         detector.print_summary(results)
-        print(f"⏱️ Общее время: {total_time:.1f} сек")
+        print(f"  Общее время: {total_time:.1f} сек")
         
     except KeyboardInterrupt:
-        print("\n⏹️ Прервано")
+        print("\n  Прервано")
     except Exception as e:
-        print(f"❌ Ошибка: {e}")
+        print(f" Ошибка: {e}")
 if __name__ == "__main__":
     main()
     
