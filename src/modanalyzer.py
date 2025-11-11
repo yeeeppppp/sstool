@@ -1,3 +1,6 @@
+from rich.console import Console
+
+console = Console()
 def main():
      print("Функция выполняется...")
 import os
