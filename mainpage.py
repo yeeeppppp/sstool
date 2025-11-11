@@ -1,134 +1,88 @@
 import os
-import sys
-import importlib
+import csv
+import glob
 from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
-from rich.prompt import Prompt
 from rich.table import Table
-
-# Добавляем папку src в путь для импортов
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+from rich.progress import Progress
+from datetime import datetime
 
 console = Console()
 
-def show_title():
-    ascii_art_scanner = """
-  ░██████                                               ░██████████░██                                      
- ░██   ░██                                                  ░██                                             
-░██         ░████████   ░██████    ░███████   ░███████      ░██    ░██░█████████████   ░███████   ░███████  
- ░████████  ░██    ░██       ░██  ░██    ░██ ░██    ░██     ░██    ░██░██   ░██   ░██ ░██    ░██ ░██        
-        ░██ ░██    ░██  ░███████  ░██        ░█████████     ░██    ░██░██   ░██   ░██ ░█████████  ░███████  
- ░██   ░██  ░███   ░██ ░██   ░██  ░██    ░██ ░██            ░██    ░██░██   ░██   ░██ ░██               ░██ 
-  ░██████   ░██░█████   ░█████░██  ░███████   ░███████      ░██    ░██░██   ░██   ░██  ░███████   ░███████  
-            ░██                                                                                             
-            ░██
-"""
-    panel_style = "bold red"
-    console.print(Panel(Text(ascii_art_scanner, style=panel_style), border_style=panel_style))
-    signature = Text("dev: avarice.dll // m3tad0n.", style="italic cyan")
-    console.print(signature, justify="center")
-
-def show_menu():
-    table = Table(title="Выберите сканирование", style="red")
-    table.add_column("Номер", justify="center", style="bold red")
-    table.add_column("Описание", style="white")
-    table.add_row("1", "Everything Replace")
-    table.add_row("2", "RecycleBin Analyzer")
-    table.add_row("3", "Registry Parser")
-    table.add_row("4", "Проверка запущенных exe/bat/py")
-    table.add_row("5", "Поиск DLL")
-    table.add_row("6", "Firewall Checker")
-    table.add_row("7", "Service Checker")
-    table.add_row("8", "Проверка очистки USN и журнала аудита")
-    table.add_row("9", "Проверка подключенных USB")
-    table.add_row("10", "Анализ стороннего ПО")
-    table.add_row("0", "Выход из программы")
-    console.print(table)
-
-class FunctionManager:
-    def __init__(self):
-        self.function_pool = {
-            "1": {"menu_name": "Everything Replace", "file": "file_searcher", "function": "main"},
-            "2": {"menu_name": "RecycleBin Analyzer", "file": "recycle_bin_analyzer", "function": "main"},
-            "3": {"menu_name": "Registry Parser", "file": "registry_parser", "function": "main"},
-            "4": {"menu_name": "Проверка запущенных exe/bat/py", "file": "LastExt", "function": "main"},
-            "5": {"menu_name": "Поиск DLL", "file": "signature_checker_dll", "function": "main"},
-            "6": {"menu_name": "Firewall Checker", "file": "firewall_parser", "function": "main"},
-            "7": {"menu_name": "Service Checker", "file": "service_checker", "function": "main"},
-            "8": {"menu_name": "Проверка очистки USN и журнала аудита", "file": "evtx_check", "function": "main"},
-            "9": {"menu_name": "Проверка подключенных USB", "file": "usb", "function": "main"},
-            "10": {"menu_name": "Анализ стороннего ПО", "file": "ddfo_detect", "function": "main"}
-        }
-        
-    def load_function(self, choice):
-        if choice not in self.function_pool:
-            return False
-            
-        func_info = self.function_pool[choice]
-        menu_name = func_info["menu_name"]
-        file_name = func_info["file"]
-        function_name = func_info["function"]
-        
-        console.print(f"Запуск {menu_name}...")
-        console.print(f"Файл: {file_name}.py")
-        
-        try:
-            module = importlib.import_module(file_name)
-            
-            if hasattr(module, function_name):
-                func = getattr(module, function_name)
-                console.print(f"Функция '{function_name}' найдена")
-                result = func()
-                console.print(f"{menu_name} завершено!")
-                
-                if result is not None:
-                    console.print(f"Результат: {result}")
-                return True
-            else:
-                functions = [name for name in dir(module) 
-                           if not name.startswith('_') and callable(getattr(module, name))]
-                
-                if functions:
-                    func = getattr(module, functions[0])
-                    console.print(f"Функция '{function_name}' не найдена, используем '{functions[0]}'")
-                    result = func()
-                    console.print(f"{menu_name} завершено!")
-                    
-                    if result is not None:
-                        console.print(f"Результат: {result}")
-                    return True
-                else:
-                    console.print(f"В файле {file_name}.py не найдено функций")
-                    return False
-                    
-        except ImportError:
-            console.print(f"Файл {file_name}.py не найден в папке src")
-            return False
-        except Exception as e:
-            console.print(f"Ошибка в {menu_name}: {str(e)}")
-            import traceback
-            console.print(f"Подробности: {traceback.format_exc()}")
-            return False
-
 def main():
-    show_title()
+    """Everything Replace - поиск файлов по системе"""
+    try:
+        console.print("=== Everything Replace ===")
+        
+
+        search_directory = "C:/"
+        search_patterns = ["*.txt", "*.log", "*.csv", "*.doc", "*.docx", "*.pdf"]
+        
+        console.print(f"Поиск файлов в {search_directory}")
+        console.print(f"Шаблоны поиска: {', '.join(search_patterns)}")
+        
+        found_files = []
+        
     
-    function_manager = FunctionManager()
+        with Progress() as progress:
+            task = progress.add_task("Поиск файлов...", total=None)
+            
+            for pattern in search_patterns:
+                search_path = os.path.join(search_directory, "**", pattern)
+                try:
+                    files = glob.glob(search_path, recursive=True)
+                    found_files.extend(files)
+                except Exception as e:
+                    console.print(f"Ошибка при поиске {pattern}: {e}")
+        
     
-    while True:
-        show_menu()
-        console.print("Введите номер пункта")
-        choice = Prompt.ask("", choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
-        
-        if choice == "0":
-            console.print("Выход из программы. Пока!", style="bold red")
-            break
-        
-        function_manager.load_function(choice)
-        
-        console.print("Нажмите Enter для продолжения...")
-        input()
+        if found_files:
+            table = Table(title=f"Найдено файлов: {len(found_files)}")
+            table.add_column("Номер", style="cyan")
+            table.add_column("Имя файла", style="white")
+            table.add_column("Путь", style="green")
+            table.add_column("Размер (КБ)", style="yellow")
+            table.add_column("Изменен", style="blue")
+            
+            for i, file_path in enumerate(found_files[:10], 1):
+                try:
+                    file_name = os.path.basename(file_path)
+                    size_kb = os.path.getsize(file_path) // 1024
+                    mtime = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime("%d.%m.%Y %H:%M")
+                    table.add_row(str(i), file_name, os.path.dirname(file_path), str(size_kb), mtime)
+                except:
+                    table.add_row(str(i), "N/A", "N/A", "N/A", "N/A")
+            
+            console.print(table)
+            
+            if len(found_files) > 10:
+                console.print(f"... и еще {len(found_files) - 10} файлов")
+            
+       
+            output_dir = "C:/output"
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, "everything_replace_results.csv")
+            
+            with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['Имя файла', 'Полный путь', 'Размер (байт)', 'Дата изменения'])
+                
+                for file_path in found_files:
+                    try:
+                        file_name = os.path.basename(file_path)
+                        size = os.path.getsize(file_path)
+                        mtime = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime("%d.%m.%Y %H:%M:%S")
+                        writer.writerow([file_name, file_path, size, mtime])
+                    except Exception as e:
+                        writer.writerow([file_name, file_path, 'N/A', 'N/A'])
+            
+            console.print(f"Результаты сохранены в CSV: {output_path}")
+            console.print(f"Всего найдено файлов: {len(found_files)}")
+            
+        else:
+            console.print("Файлы по указанным шаблонам не найдены")
+            
+    except Exception as e:
+        console.print(f"Критическая ошибка: {e}")
 
 if __name__ == "__main__":
     main()
