@@ -3,7 +3,6 @@ import csv
 import string
 
 def main():
-    print("Запуск Everything Replace...")
     search_keywords_and_save()
 
 keywords = [
