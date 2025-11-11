@@ -82,7 +82,7 @@ class FunctionManager:
             if hasattr(module, function_name):
                 func = getattr(module, function_name)
                 func()  
-                console.print(f"[bold green]✓ {menu_name} завершено![/bold green]")
+                console.print(f"[bold green] {menu_name} завершено![/bold green]")
                 return True
             else:
                
@@ -92,19 +92,19 @@ class FunctionManager:
                 if functions:
                    
                     func = getattr(module, functions[0])
-                    console.print(f"[yellow]⚠ Функция '{function_name}' не найдена, используем '{functions[0]}'[/yellow]")
+                    console.print(f"[yellow] Функция '{function_name}' не найдена, используем '{functions[0]}'[/yellow]")
                     func()
-                    console.print(f"[bold green]✓ {menu_name} завершено![/bold green]")
+                    console.print(f"[bold green] {menu_name} завершено![/bold green]")
                     return True
                 else:
-                    console.print(f"[red]✗ В файле {file_name}.py не найдено функций[/red]")
+                    console.print(f"[red] В файле {file_name}.py не найдено функций[/red]")
                     return False
                     
         except ImportError:
-            console.print(f"[red]✗ Файл {file_name}.py не найден в папке src[/red]")
+            console.print(f"[red] Файл {file_name}.py не найден в папке src[/red]")
             return False
         except Exception as e:
-            console.print(f"[red]✗ Ошибка в {menu_name}: {str(e)}[/red]")
+            console.print(f"[red] Ошибка в {menu_name}: {str(e)}[/red]")
             return False
 
 def main():
