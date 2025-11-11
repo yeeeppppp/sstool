@@ -1,14 +1,17 @@
 from rich.console import Console
-
-console = Console()
-def main():
-     print("Функция выполняется...")
 import os
 import zipfile
 import urllib.request
 import subprocess
 import tempfile
 import re
+
+console = Console()
+
+def main():
+    """Анализ модификации файлов"""
+    console.print("=== Анализ модификации ===")
+    scan_loop()
 
 SIGNATURES = {
     "examplemod": "Возможно софт",
@@ -60,12 +63,13 @@ LUYTEN_FILENAME = "luyten-0.5.4.exe"
 def download_luyten():
     """Скачивает Luyten если не установлен"""
     if not os.path.exists(LUYTEN_FILENAME):
-        print("Скачивание Luyten...")
+        console.print("Скачивание Luyten...")
         try:
             urllib.request.urlretrieve(LUYTEN_URL, LUYTEN_FILENAME)
-            print("Luyten скачан успешно")
+            console.print("Luyten скачан успешно")
+            return True
         except Exception as e:
-            print(f"Ошибка скачивания Luyten: {e}")
+            console.print(f"Ошибка скачивания Luyten: {e}")
             return False
     return True
 
@@ -84,7 +88,7 @@ def open_in_luyten(jar_path, class_file=None):
                 subprocess.run([LUYTEN_FILENAME, jar_path], check=True)
             return True
         except Exception as e:
-            print(f"Ошибка запуска Luyten: {e}")
+            console.print(f"Ошибка запуска Luyten: {e}")
     return False
 
 def find_jars(path):
@@ -162,24 +166,27 @@ def scan_jar(jar_path):
                         
         return detected_classes, detected_all
     except zipfile.BadZipFile:
-        print(f"{os.path.basename(jar_path)} - не архив")
+        console.print(f"{os.path.basename(jar_path)} - не архив")
         return {}, set()
     except Exception as e:
-        print(f"Ошибка при сканировании {os.path.basename(jar_path)}: {e}")
+        console.print(f"Ошибка при сканировании {os.path.basename(jar_path)}: {e}")
         return {}, set()
 
 def scan_loop():
     while True:
-        path = input("Путь к JAR или папке (exit для выхода): ").strip('"')
+        console.print("\n[bold cyan]Введите путь к JAR файлу или папке (или 'exit' для выхода):[/bold cyan]")
+        path = input("Путь: ").strip('"')
+        
         if path.lower() == "exit":
             break
+            
         if not os.path.exists(path):
-            print("Путь не найден")
+            console.print("[red]Путь не найден[/red]")
             continue
 
         jars = find_jars(path)
         if not jars:
-            print("JAR-файлы не найдены")
+            console.print("[yellow]JAR-файлы не найдены[/yellow]")
             continue
 
         found_any = False
@@ -187,7 +194,7 @@ def scan_loop():
         clean_files = []
         suspicious_files_data = []
         
-        print(f"Сканирование {len(jars)} файлов...")
+        console.print(f"[bold]Сканирование {len(jars)} файлов...[/bold]")
         
         for jar in jars:
             detected_classes, detected_all = scan_jar(jar)
@@ -197,44 +204,45 @@ def scan_loop():
                 found_any = True
                 suspicious_files_count += 1
                 suspicious_files_data.append((jar, jar_name, detected_classes))
-                print(f"{jar_name} - найдено сигнатур:")
+                console.print(f"[yellow]{jar_name} - найдено сигнатур:[/yellow]")
                 labymod_sigs = [sig for sig in detected_all if any(lm_sig in sig for lm_sig in ['cD()', 'cE()', 'cH()', 'dzm', 'dcl', 'dck', 'aqa', 'bfw'])]
                 forge_sigs = [sig for sig in detected_all if sig in FORGE_SIGS]
                 fabric_sigs = [sig for sig in detected_all if sig in FABRIC_SIGS]
                 other_sigs = detected_all - set(labymod_sigs) - set(forge_sigs) - set(fabric_sigs)
                 
                 if labymod_sigs:
-                    print(f"  LabyMod: {', '.join(labymod_sigs)}")
+                    console.print(f"  [red]LabyMod: {', '.join(labymod_sigs)}[/red]")
                 if forge_sigs:
-                    print(f"  Forge: {', '.join(forge_sigs)}")
+                    console.print(f"  [red]Forge: {', '.join(forge_sigs)}[/red]")
                 if fabric_sigs:
-                    print(f"  Fabric: {', '.join(fabric_sigs)}")
+                    console.print(f"  [red]Fabric: {', '.join(fabric_sigs)}[/red]")
                 if other_sigs:
-                    print(f"  Другие: {', '.join(other_sigs)}")
+                    console.print(f"  [red]Другие: {', '.join(other_sigs)}[/red]")
                     
                 if detected_classes:
-                    print("  Подозрительные классы:")
+                    console.print("  [yellow]Подозрительные классы:[/yellow]")
                     for cls, sigs in detected_classes.items():
-                        print(f"    {cls}: {', '.join(list(sigs)[:5])}")
+                        console.print(f"    {cls}: {', '.join(list(sigs)[:5])}")
             else:
                 clean_files.append(jar_name)
-                print(f"{jar_name} - чистый")
-        print("\n" + "="*50)
+                console.print(f"[green]{jar_name} - чистый[/green]")
+                
+        console.print("\n" + "="*50)
         
         if found_any:
-            print(f"Найдено подозрительных файлов: {suspicious_files_count}")
-            print("\nПодозрительные файлы:")
+            console.print(f"[bold red]Найдено подозрительных файлов: {suspicious_files_count}[/bold red]")
+            console.print("\n[bold]Подозрительные файлы:[/bold]")
             
             for i, (jar_path, jar_name, detected_classes) in enumerate(suspicious_files_data, 1):
-                print(f"  {i}. {jar_name}")
+                console.print(f"  {i}. {jar_name}")
                 if detected_classes:
                     class_list = list(detected_classes.keys())
                     if len(class_list) > 3:
-                        print(f"     Классы: {', '.join(class_list[:3])} ... (еще {len(class_list)-3})")
+                        console.print(f"     Классы: {', '.join(class_list[:3])} ... (еще {len(class_list)-3})")
                     else:
-                        print(f"     Классы: {', '.join(class_list)}")
+                        console.print(f"     Классы: {', '.join(class_list)}")
             
-            print("\nДля декомпиляции выберите номер файла (0 для выхода):")
+            console.print("\n[bold cyan]Для декомпиляции выберите номер файла (0 для выхода):[/bold cyan]")
             try:
                 choice = input("Ваш выбор: ").strip()
                 if choice == "0":
@@ -245,13 +253,13 @@ def scan_loop():
                     selected_jar_path, selected_jar_name, detected_classes = suspicious_files_data[file_index]
                     
                     if detected_classes:
-                        print(f"\nПодозрительные классы в {selected_jar_name}:")
+                        console.print(f"\n[bold]Подозрительные классы в {selected_jar_name}:[/bold]")
                         class_list = list(detected_classes.keys())
                         for j, class_name in enumerate(class_list, 1):
                             sigs = detected_classes[class_name]
-                            print(f"  {j}. {class_name} ({', '.join(list(sigs)[:3])})")
+                            console.print(f"  {j}. {class_name} ({', '.join(list(sigs)[:3])})")
                         
-                        print("  Выберите номер класса для открытия (0 для всего JAR):")
+                        console.print("  [cyan]Выберите номер класса для открытия (0 для всего JAR):[/cyan]")
                         class_choice = input("Ваш выбор: ").strip()
                         
                         if class_choice != "0":
@@ -259,40 +267,39 @@ def scan_loop():
                                 class_index = int(class_choice) - 1
                                 if 0 <= class_index < len(class_list):
                                     selected_class = class_list[class_index]
-                                    print(f"Открытие {selected_jar_name} -> {selected_class} в Luyten...")
+                                    console.print(f"[yellow]Открытие {selected_jar_name} -> {selected_class} в Luyten...[/yellow]")
                                     open_in_luyten(selected_jar_path, selected_class)
                                 else:
-                                    print("Неверный номер класса")
+                                    console.print("[red]Неверный номер класса[/red]")
                             except ValueError:
-                                print("Открытие всего JAR файла...")
+                                console.print("[yellow]Открытие всего JAR файла...[/yellow]")
                                 open_in_luyten(selected_jar_path)
                         else:
-                            print(f"Открытие {selected_jar_name} в Luyten...")
+                            console.print(f"[yellow]Открытие {selected_jar_name} в Luyten...[/yellow]")
                             open_in_luyten(selected_jar_path)
                     else:
-                        print(f"Открытие {selected_jar_name} в Luyten...")
+                        console.print(f"[yellow]Открытие {selected_jar_name} в Luyten...[/yellow]")
                         open_in_luyten(selected_jar_path)
                         
                 else:
-                    print("Неверный номер")
+                    console.print("[red]Неверный номер[/red]")
                     
             except ValueError:
-                print("Введите число")
+                console.print("[red]Введите число[/red]")
             except Exception as e:
-                print(f"Ошибка: {e}")
+                console.print(f"[red]Ошибка: {e}[/red]")
                 
         else:
-            print("Подозрительные файлы не найдены")
+            console.print("[green]Подозрительные файлы не найдены[/green]")
         
         if clean_files:
-            print(f"\nЧистые файлы ({len(clean_files)}):")
+            console.print(f"\n[bold green]Чистые файлы ({len(clean_files)}):[/bold green]")
             for file in clean_files:
-                print(f"  {file}")
+                console.print(f"  {file}")
         else:
-            print("\nЧистые файлы: нет")
+            console.print("\n[green]Чистые файлы: нет[/green]")
 
-        print(f"\nИтог: {suspicious_files_count} подозрительных, {len(clean_files)} чистых")
+        console.print(f"\n[bold]Итог: {suspicious_files_count} подозрительных, {len(clean_files)} чистых[/bold]")
 
 if __name__ == "__main__":
-    print("Автоматический сложный поиск сигнатур")
-    scan_loop()
+    main()
