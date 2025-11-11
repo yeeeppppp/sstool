@@ -7,7 +7,6 @@ from rich.text import Text
 from rich.prompt import Prompt
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
-from rich.layout import Layout
 from rich.align import Align
 from rich import box
 import time
@@ -29,36 +28,29 @@ def show_title():
             ░██
 """
     
-   
+    
     title_panel = Panel(
         Align.center(
-            Text(ascii_art_scanner, style="bold red") +
-            Text("\n" + "═" * 60 + "\n", style="cyan") +
-            Text("ПРОФЕССИОНАЛЬНЫЙ СКАНЕР БЕЗОПАСНОСТИ", style="bold yellow") +
-            Text("\n" + "─" * 40, style="blue")
+            Text(ascii_art_scanner, style="bold red")
         ),
         box=box.DOUBLE_EDGE,
-        border_style="bright_red",
+        border_style="red",
         padding=(1, 2),
-        title="[bold white]СИСТЕМА МОНИТОРИНГА[/bold white]",
-        subtitle="[italic cyan]dev: avarice.dll // m3tad0n.[/italic cyan]"
     )
     console.print(title_panel)
 
 def show_menu():
-   
+    
     menu_table = Table(
-        title="[bold yellow]ВЫБЕРИТЕ ТИП СКАНИРОВАНИЯ[/bold yellow]",
         show_header=True,
-        header_style="bold magenta",
+        header_style="bold red",
         box=box.ROUNDED,
-        border_style="bright_blue",
-        title_style="bold cyan"
+        border_style="red",
     )
     
-    menu_table.add_column("№", justify="center", style="bold green", width=8)
+    menu_table.add_column("№", justify="center", style="bold red", width=8)
     menu_table.add_column("ОПИСАНИЕ", style="white", width=50)
-    menu_table.add_column("СТАТУС", justify="center", style="yellow", width=15)
+    menu_table.add_column("СТАТУС", justify="center", style="red", width=15)
     
     menu_items = [
         ("1", "Everything Replace", "ГОТОВ"),
@@ -77,43 +69,40 @@ def show_menu():
     
     for num, desc, status in menu_items:
         menu_table.add_row(
-            f"[bold cyan]{num}[/bold cyan]",
+            f"[red]{num}[/red]",
             f"[white]{desc}[/white]",
-            f"[bold]{status}[/bold]"
+            f"[red]{status}[/red]"
         )
     
     console.print()
     console.print(menu_table)
 
 def show_loading_animation(message="Выполняется сканирование"):
-    """Показывает анимацию загрузки"""
+    """Показывает анимацию загрузки в красном стиле"""
     with Progress(
-        SpinnerColumn(),
+        SpinnerColumn(spinner_name="dots", style="red"),
         TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
+        BarColumn(complete_style="red", finished_style="red"),
         TaskProgressColumn(),
         transient=True,
     ) as progress:
-        task = progress.add_task(f"[cyan]{message}...", total=100)
+        task = progress.add_task(f"[red]{message}...", total=100)
         
         for i in range(100):
             progress.update(task, advance=1)
             time.sleep(0.02)
 
 def show_success_message(module_name, execution_time=None):
-    """Показывает сообщение об успешном выполнении"""
+    """Показывает сообщение о выполнении"""
     success_panel = Panel(
         Align.center(
-            Text("СКАНИРОВАНИЕ УСПЕШНО ЗАВЕРШЕНО", style="bold green") +
-            Text(f"\n\nМодуль: [bold white]{module_name}[/bold white]", style="cyan") +
-            (Text(f"\nВремя выполнения: [bold yellow]{execution_time:.2f} сек[/bold yellow]", style="white") 
-             if execution_time else Text("")) +
-            Text("\n\n" + "━" * 40, style="green")
+            Text(f"Модуль: [white]{module_name}[/white]", style="red") +
+            (Text(f"\nВремя выполнения: [white]{execution_time:.2f} сек[/white]", style="red") 
+             if execution_time else Text(""))
         ),
         box=box.ROUNDED,
-        border_style="green",
+        border_style="red",
         padding=(1, 2),
-        title="[bold white]РЕЗУЛЬТАТ[/bold white]"
     )
     console.print(success_panel)
 
@@ -121,15 +110,12 @@ def show_error_message(module_name, error):
     """Показывает сообщение об ошибке"""
     error_panel = Panel(
         Align.center(
-            Text("ОШИБКА ВЫПОЛНЕНИЯ", style="bold red") +
-            Text(f"\n\nМодуль: [bold white]{module_name}[/bold white]", style="cyan") +
-            Text(f"\nОшибка: [bold yellow]{error}[/bold yellow]", style="white") +
-            Text("\n\n" + "━" * 40, style="red")
+            Text(f"Модуль: [white]{module_name}[/white]", style="red") +
+            Text(f"\nОшибка: [white]{error}[/white]", style="red")
         ),
         box=box.ROUNDED,
         border_style="red",
         padding=(1, 2),
-        title="[bold white]ОШИБКА[/bold white]"
     )
     console.print(error_panel)
 
@@ -137,15 +123,12 @@ def show_module_not_found(module_name):
     """Показывает сообщение о ненайденном модуле"""
     not_found_panel = Panel(
         Align.center(
-            Text("МОДУЛЬ НЕ НАЙДЕН", style="bold yellow") +
-            Text(f"\n\nФайл: [bold white]{module_name}.py[/bold white]", style="cyan") +
-            Text("\nУбедитесь, что файл находится в папке src", style="white") +
-            Text("\n\n" + "━" * 40, style="yellow")
+            Text(f"Файл: [white]{module_name}.py[/white]", style="red") +
+            Text("\nФайл не найден в папке src", style="red")
         ),
         box=box.ROUNDED,
-        border_style="yellow",
+        border_style="red",
         padding=(1, 2),
-        title="[bold white]ВНИМАНИЕ[/bold white]"
     )
     console.print(not_found_panel)
 
@@ -153,16 +136,13 @@ def show_function_not_found(module_name, function_name, fallback_function):
     """Показывает сообщение о ненайденной функции"""
     function_panel = Panel(
         Align.center(
-            Text("ИСПОЛЬЗОВАНА АЛЬТЕРНАТИВНАЯ ФУНКЦИЯ", style="bold blue") +
-            Text(f"\n\nМодуль: [bold white]{module_name}[/bold white]", style="cyan") +
-            Text(f"\nФункция не найдена: [bold yellow]{function_name}[/bold yellow]", style="white") +
-            Text(f"\nИспользована: [bold green]{fallback_function}[/bold green]", style="white") +
-            Text("\n\n" + "━" * 40, style="blue")
+            Text(f"Модуль: [white]{module_name}[/white]", style="red") +
+            Text(f"\nФункция не найдена: [white]{function_name}[/white]", style="red") +
+            Text(f"\nИспользована: [white]{fallback_function}[/white]", style="red")
         ),
         box=box.ROUNDED,
-        border_style="blue",
+        border_style="red",
         padding=(1, 2),
-        title="[bold white]АВТОМАТИЧЕСКАЯ ЗАМЕНА[/bold white]"
     )
     console.print(function_panel)
 
@@ -170,13 +150,11 @@ def show_exit_message():
     """Показывает сообщение о выходе"""
     exit_panel = Panel(
         Align.center(
-            Text("ВЫХОД ИЗ ПРОГРАММЫ", style="bold magenta") +
-            Text("\n\n" + "═" * 40, style="magenta")
+            Text("Завершение работы", style="red")
         ),
         box=box.DOUBLE_EDGE,
-        border_style="bright_magenta",
+        border_style="red",
         padding=(1, 2),
-        title="[bold white]ЗАВЕРШЕНИЕ РАБОТЫ[/bold white]"
     )
     console.print(exit_panel)
 
@@ -206,18 +184,15 @@ class FunctionManager:
         file_name = func_info["file"]
         function_name = func_info["function"]
         
-     
+       
         start_panel = Panel(
             Align.center(
-                Text("ЗАПУСК СКАНИРОВАНИЯ", style="bold yellow") +
-                Text(f"\n\nМодуль: [bold white]{menu_name}[/bold white]", style="cyan") +
-                Text(f"\nФайл: [bold green]{file_name}.py[/bold green]", style="white") +
-                Text("\n\n" + "━" * 40, style="yellow")
+                Text(f"Модуль: [white]{menu_name}[/white]", style="red") +
+                Text(f"\nФайл: [white]{file_name}.py[/white]", style="red")
             ),
             box=box.ROUNDED,
-            border_style="yellow",
+            border_style="red",
             padding=(1, 2),
-            title="[bold white]ЗАПУСК[/bold white]"
         )
         console.print(start_panel)
         
@@ -269,17 +244,7 @@ def main():
         show_menu()
         console.print()
         
-       
-        choice_panel = Panel(
-            Align.center(
-                Text("ВВЕДИТЕ НОМЕР ПУНКТА МЕНЮ", style="bold green")
-            ),
-            box=box.ROUNDED,
-            border_style="bright_green",
-            padding=(0, 2)
-        )
-        console.print(choice_panel)
-        
+      
         choice = Prompt.ask(
             "Ваш выбор", 
             choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"],
@@ -292,15 +257,8 @@ def main():
         
         function_manager.load_function(choice)
         
-        continue_panel = Panel(
-            Align.center(
-                Text("НАЖМИТЕ ENTER ДЛЯ ПРОДОЛЖЕНИЯ", style="bold cyan")
-            ),
-            box=box.SQUARE,
-            border_style="cyan",
-            padding=(0, 2)
-        )
-        console.print(continue_panel)
+       
+        console.print("[red]Нажмите Enter для продолжения...[/red]")
         input()
 
 if __name__ == "__main__":
