@@ -1,6 +1,6 @@
 def main():
      print("Функция выполняется...")
-import win32evtlog
+import win32evtlog 
 import csv
 import os
 
