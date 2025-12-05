@@ -10,7 +10,8 @@ from rich.table import Table
 console = Console()
 
 def show_title():
-    ascii_art_scanner = """                                                                                                                  
+    ascii_art_scanner = """
+                                                                                                                  
         _____     _______    ______    _____         ____________   ____________          ____    _____    _____     
     /      |_   \      |  |      | /      |_       \           \  \           \     ____\_  \__|\    \   \    \    
     /         \   |     /  /     /|/         \       \           \  \           \   /     /     \\\    \   |    |   
@@ -46,17 +47,8 @@ def show_menu():
     table.add_row("0", "Выход из программы")
     console.print(table)
 
-if getattr(sys, 'frozen', False):
-    # PyInstaller environment
-    base_dir = sys._MEIPASS
-else:
-    # Normal execution
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Путь к папке src внутри проекта
+base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 src_path = os.path.join(base_dir, "src")
-
-# Добавляем в sys.path
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
