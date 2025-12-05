@@ -7,8 +7,6 @@ from rich.text import Text
 from rich.prompt import Prompt
 from rich.table import Table
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
 console = Console()
 
 def show_title():
@@ -46,6 +44,11 @@ def show_menu():
     table.add_row("0", "Выход из программы")
     console.print(table)
 
+base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+src_path = os.path.join(base_dir, "src")
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
 class FunctionManager:
     def __init__(self):
         self.function_pool = {
@@ -75,7 +78,7 @@ class FunctionManager:
         console.print(f"\n[bold yellow]Запуск {menu_name}...[/bold yellow]")
         
         try:
-            module = importlib.import_module(file_name)
+            module = importlib.import_module(f"src.{file_name}")
             
             if hasattr(module, function_name):
                 func = getattr(module, function_name)
