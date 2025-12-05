@@ -26,8 +26,9 @@ def show_title():
 """
     panel_style = "bold red"
     console.print(Panel(Text(ascii_art_scanner, style=panel_style), border_style=panel_style))
-    signature = Text("dev: avarice.dll // m3tad0n.", style="italic cyan")
-    console.print(signature, justify="center")
+    signature = Text("dev: avarice.dll // m3tad0n //", style="italic cyan")
+    signature2 = Text("AVARICESCREENSHARE", style="italic cyan")
+    console.print(signature, signature2, justify="center")
 
 def show_menu():
     table = Table(title="Выберите сканирование", style="red")
